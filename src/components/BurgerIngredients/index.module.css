@@ -1,0 +1,61 @@
+.tabs {
+    display: flex;
+}
+
+.item {
+    position: relative;
+    text-align: center;
+    min-height: 208px;
+    cursor: pointer;
+}
+
+.price {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.name {
+    text-align: center;
+}
+
+.counter {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 24px;
+}
+
+.content {
+    max-height: 70vh;
+    overflow: auto;
+}
+.content::-webkit-scrollbar {
+    width: 8px;
+}
+ 
+.content::-webkit-scrollbar-track {
+    background-color: var(--background-element);
+    height: 50%;
+}
+ 
+.content::-webkit-scrollbar-thumb {
+    background-color: var(--text-inactive-color);
+    height: 50%;
+}
+
+@media screen and (max-width: 630px) {
+    .items {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        grid-gap: 24px;
+    }
+    .tabs {
+        flex-direction: column;
+    }
+}
