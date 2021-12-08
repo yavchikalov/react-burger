@@ -1,6 +1,7 @@
-import PropTypes from 'prop-types';
+import React from 'react';
 import { ConstructorElement, Button, CurrencyIcon, DragIcon } from '@ya.praktikum/react-developer-burger-ui-components';
 import BurgerConstructorStyle from './index.module.css';
+import OrderDetails from '../OrderDetails';
 
 const BurgerConstructor = (props: any) => {
 
@@ -15,6 +16,16 @@ const BurgerConstructor = (props: any) => {
     }
 
     const sum = props.items.reduce((acc: any, item: any) => acc + item.price, 0);
+
+    const [order, setOrder] = React.useState<string|null>(null);
+
+    const handleOrder = () => {
+        setOrder(Math.random().toString().substring(2, 8))
+    }
+
+    const handleCloseModal = () => {
+        setOrder(null);
+    }
 
     return (
         <div className={BurgerConstructorStyle.root}>
@@ -68,17 +79,13 @@ const BurgerConstructor = (props: any) => {
                         <CurrencyIcon type="primary" />
                     </div>
                 </div>
-                <Button type="primary" size="medium">
+                <Button type="primary" size="medium" onClick={handleOrder}>
                     Оформить заказ
                 </Button>
             </div>
+            { order && <OrderDetails number={order} onClose={handleCloseModal} />}
         </div>
     );
-}
-
-BurgerConstructor.propTypes = {
-    items: PropTypes.array.isRequired,
-    setSelected:PropTypes.func.isRequired
 }
 
 export default BurgerConstructor;

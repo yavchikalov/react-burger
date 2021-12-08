@@ -17,7 +17,20 @@
     color: var(--text-inactive-color);
     border-radius: 40px;
     cursor: pointer;
+    transition: .3s;
     /* border: 1px solid #fff; */
+}
+
+.li svg,
+.login svg {
+    transition: .3s;
+}
+
+.login:hover svg {
+    fill: #F2F2F3;
+}
+.login:hover {
+    color: var(--text-primary-color);
 }
 
 .li_active {
@@ -27,6 +40,14 @@
 .li > span:first-child,
 .login > span:first-child {
     line-height: 0;
+}
+
+.li:hover {
+    color: var(--text-primary-color);
+}
+
+.li:hover svg {
+    fill: #F2F2F3;
 }
 
 .logo {
@@ -44,12 +65,18 @@
     flex-wrap: wrap;
 }
 
-.login {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+.loginWrapper {
     flex-grow: 3;
+    justify-content: flex-end;
+    display: flex;
+}
+
+.login {
+    display: inline-flex;
+    align-items: center;
     cursor: pointer;
+    color: var(--text-inactive-color);
+    transition: .3s;
 }
 
 @media screen and (max-width: 980px) {
@@ -69,7 +96,7 @@
     .content {
         justify-content: center;
     }
-    .login {
+    .loginWrapper {
         order: 0;
         flex-grow: 0;
     }

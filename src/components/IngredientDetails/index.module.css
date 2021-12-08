@@ -1,0 +1,14 @@
+.root {
+    text-align: center;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    color: var(--text-inactive-color);
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+}

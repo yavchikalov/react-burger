@@ -1,0 +1,14 @@
+.animation-scale-enter {
+    transform: scale(.7);
+}
+.animation-scale-enter-active {
+    transform: scale(1);
+    transition: 50ms;
+}
+.animation-scale-exit {
+    transform: scale(1);
+}
+.animation-scale-exit-active {
+    transform: scale(.7);
+    transition: 50ms;
+}

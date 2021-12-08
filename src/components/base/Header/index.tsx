@@ -45,11 +45,13 @@ const BaseHeader = () => {
                     <div className={HeaderStyle.logo}>
                         <Logo />
                     </div>
-                    <div className={`${HeaderStyle.login} pt-4 pb-4 pl-5 pr-5`}>
-                        <span className="mr-2">
-                            <ProfileIcon type="primary" />
-                        </span>
-                        <span className="text text_type_main-default">Личный кабинет</span>
+                    <div className={`${HeaderStyle.loginWrapper} pt-4 pb-4 pl-5 pr-5`}>
+                        <div className={HeaderStyle.login}>
+                            <span className="mr-2">
+                                <ProfileIcon type="secondary" />
+                            </span>
+                            <span className="text text_type_main-default">Личный кабинет</span>
+                        </div>
                     </div>
                 </div>
             </LayoutBase>

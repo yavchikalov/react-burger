@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tab, CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-components';
 import BurgerIngredientsStyle from './index.module.css';
+import IngredientDetails from '../IngredientDetails';
 
 const BurgerIngredients = (props: any) => {
     const [tabs] = React.useState([
@@ -20,6 +21,10 @@ const BurgerIngredients = (props: any) => {
     ]);
 
     const [current, setCurrent] = React.useState('bun');
+    const [modalState, setModalState] = React.useState<any>({
+        active: false,
+        item: null
+    });
 
     const handleChangeTab = (value: string) => {
         setCurrent(value);
@@ -34,6 +39,15 @@ const BurgerIngredients = (props: any) => {
         }
         const bun = props.selected.find((item: any) => item.type === 'bun');
         return props.setSelected([bun, ...notBuns, item, bun]);
+    }
+
+    const handleClickImg = (e: any, item: any) => {
+        e.stopPropagation();
+        setModalState({ active: true, item });
+    }
+
+    const handleCloseModal = () => {
+        setModalState({ active: false, item: null });
     }
 
     const counterList = props.selected.reduce((acc: any, item: any) => {
@@ -77,7 +91,7 @@ const BurgerIngredients = (props: any) => {
                                         <div className="pl-4 pr-4">
                                             <picture>
                                                 <source media="(max-width: 480px)" srcSet={item.image_mobile} />
-                                                <img src={item.image} alt={item.name} />
+                                                <img src={item.image} alt={item.name} onClick={(e) => handleClickImg(e, item)} />
                                             </picture>
                                         </div>
                                         <div className={`${BurgerIngredientsStyle.price} mt-1 mb-1`}>
@@ -96,6 +110,7 @@ const BurgerIngredients = (props: any) => {
                     )
                 }
             </div>
+            { modalState.active && modalState.item && <IngredientDetails {...modalState.item} onClose={handleCloseModal} /> }
         </div>
     )
 }
