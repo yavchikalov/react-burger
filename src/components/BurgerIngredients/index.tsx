@@ -3,28 +3,72 @@ import PropTypes from 'prop-types';
 import { Tab, CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-components';
 import BurgerIngredientsStyle from './index.module.css';
 import IngredientDetails from '../IngredientDetails';
+interface ITabs {
+    title: string;
+    value: string;
+    point: number | null;
+}
+
+const tabList = [
+    {
+        title: 'Булки',
+        value: 'bun',
+        point: null
+    },
+    {
+        title: 'Соусы',
+        value: 'sauce',
+        point: null
+    },
+    {
+        title: 'Начинки',
+        value: 'main',
+        point: null
+    }
+];
 
 const BurgerIngredients = (props: any) => {
-    const [tabs] = React.useState([
-        {
-            title: 'Булки',
-            value: 'bun'
-        },
-        {
-            title: 'Соусы',
-            value: 'sauce'
-        },
-        {
-            title: 'Начинки',
-            value: 'main'
-        }
-    ]);
+    const [tabs, setTabs] = React.useState<Array<ITabs>>(tabList);
+    const [currentScrollTop, setCurrentScrollTop] = React.useState(0);
+
+    const handleScrollTab = (event: Event) => {
+        const element = event.currentTarget as HTMLElement;
+        setCurrentScrollTop(element.scrollTop);
+    }
+
+    React.useEffect(() => {
+        const list = tabList.reduce((acc: any, item) => {
+            const element = document.getElementById(`${item.value}-content`);
+            if (element) {
+                acc.tabs.push({
+                    ...item,
+                    point: acc.point + element.scrollHeight
+                });
+            }
+            return acc;
+        }, { tabs: [], point: 0 });
+
+        setTabs(list.tabs);
+
+        document.getElementById('content')?.addEventListener('scroll', handleScrollTab);
+
+        return () => document.getElementById('content')?.removeEventListener('scroll', handleScrollTab);
+    }, [])
 
     const [current, setCurrent] = React.useState('bun');
     const [modalState, setModalState] = React.useState<any>({
         active: false,
         item: null
     });
+
+    React.useEffect(() => {
+        const tab = tabs.find(item => {
+            if (item.point && currentScrollTop <= item.point) return item;
+            return null;
+        });
+
+        if (tab) setCurrent(tab.value);
+    }, [currentScrollTop, tabs]);
 
     const handleChangeTab = (value: string) => {
         setCurrent(value);
@@ -84,7 +128,7 @@ const BurgerIngredients = (props: any) => {
                             <p id={category.value} className={`${BurgerIngredientsStyle.title} text text_type_main-medium mb-6`}>
                                 { category.title }
                             </p>
-                            <div className={`${BurgerIngredientsStyle.items} pr-4 pl-4 mb-8`}>
+                            <div id={`${category.value}-content`} className={`${BurgerIngredientsStyle.items} pr-4 pl-4 mb-8`}>
                             {
                                 props.items[category.value].map((item: any) =>
                                     <div key={item._id} className={`${BurgerIngredientsStyle.item} mb-2`} onClick={() => handleClickItem(item)}>
