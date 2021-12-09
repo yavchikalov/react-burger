@@ -38,12 +38,14 @@ const BurgerIngredients = (props: any) => {
 
     React.useEffect(() => {
         const list = tabList.reduce((acc: any, item) => {
-            const element = document.getElementById(`${item.value}-content`);
+            const element = document.getElementById(item.value);
             if (element) {
+                const point = acc.point + element.scrollHeight;
                 acc.tabs.push({
                     ...item,
-                    point: acc.point + element.scrollHeight
+                    point
                 });
+                acc.point = point;
             }
             return acc;
         }, { tabs: [], point: 0 });
@@ -124,11 +126,11 @@ const BurgerIngredients = (props: any) => {
             <div id="content" className={BurgerIngredientsStyle.content}>
                 {
                     tabs.map(category =>
-                        <React.Fragment key={category.value}>
-                            <p id={category.value} className={`${BurgerIngredientsStyle.title} text text_type_main-medium mb-6`}>
+                        <div id={category.value} key={category.value}>
+                            <p className={`${BurgerIngredientsStyle.title} text text_type_main-medium mb-6`}>
                                 { category.title }
                             </p>
-                            <div id={`${category.value}-content`} className={`${BurgerIngredientsStyle.items} pr-4 pl-4 mb-8`}>
+                            <div className={`${BurgerIngredientsStyle.items} pr-4 pl-4 mb-8`}>
                             {
                                 props.items[category.value].map((item: any) =>
                                     <div key={item._id} className={`${BurgerIngredientsStyle.item} mb-2`} onClick={() => handleClickItem(item)}>
@@ -150,7 +152,7 @@ const BurgerIngredients = (props: any) => {
                                 )
                             }
                             </div>
-                        </React.Fragment>
+                        </div>
                     )
                 }
             </div>
