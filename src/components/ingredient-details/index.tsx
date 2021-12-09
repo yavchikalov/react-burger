@@ -1,7 +1,17 @@
-import Modal from '../Modal';
+import Modal from '../modal';
 import IngredientDetailsStyle from './index.module.css';
 
-const IngredientDetails = (props: any) => {
+interface IIngredientDetails {
+    calories: number;
+    proteins: number;
+    fat: number;
+    carbohydrates: number;
+    image_large: string;
+    name: string;
+    onClose: () => void
+}
+
+const IngredientDetails = (props: IIngredientDetails) => {
     return (
         <Modal header="Детали ингредиента" onClose={props.onClose}>
             <div className={IngredientDetailsStyle.root}>

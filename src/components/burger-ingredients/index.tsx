@@ -1,8 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Tab, CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-components';
 import BurgerIngredientsStyle from './index.module.css';
-import IngredientDetails from '../IngredientDetails';
+import IngredientDetails from '../ingredient-details';
+// import IIngredientList from '../../types/IngredientList';
+import IIngredientItem from '../../types/IngredientItem';
+
 interface ITabs {
     title: string;
     value: string;
@@ -27,14 +29,16 @@ const tabList = [
     }
 ];
 
-const BurgerIngredients = (props: any) => {
+
+// items: any не могу разобраться, пробовал IIngredientList, но начинается ругаться на props.items[category.value]
+const BurgerIngredients = (props: { items: any, selected: Array<IIngredientItem>, setSelected: (items: Array<IIngredientItem>) => void }) => {
     const [tabs, setTabs] = React.useState<Array<ITabs>>(tabList);
     const [currentScrollTop, setCurrentScrollTop] = React.useState(0);
 
     const handleScrollTab = (event: Event) => {
         const element = event.currentTarget as HTMLElement;
         setCurrentScrollTop(element.scrollTop);
-    }
+    };
 
     React.useEffect(() => {
         const list = tabList.reduce((acc: any, item) => {
@@ -58,7 +62,7 @@ const BurgerIngredients = (props: any) => {
     }, [])
 
     const [current, setCurrent] = React.useState('bun');
-    const [modalState, setModalState] = React.useState<any>({
+    const [modalState, setModalState] = React.useState<{active: boolean, item: IIngredientItem | null}>({
         active: false,
         item: null
     });
@@ -69,8 +73,8 @@ const BurgerIngredients = (props: any) => {
             return null;
         });
 
-        if (tab) setCurrent(tab.value);
-    }, [currentScrollTop, tabs]);
+        if (tab && tab.value !== current) setCurrent(tab.value);
+    }, [currentScrollTop, tabs, current]);
 
     const handleChangeTab = (value: string) => {
         setCurrent(value);
@@ -78,16 +82,16 @@ const BurgerIngredients = (props: any) => {
         el && el.scrollIntoView({ block: 'start', behavior: 'smooth' });
     }
 
-    const handleClickItem = (item: any) => {
-        const notBuns = props.selected.filter((item: any) => item.type !== 'bun');
+    const handleClickItem = (item: IIngredientItem) => {
+        const notBuns = props.selected.filter((item: IIngredientItem) => item.type !== 'bun');
         if (item.type === 'bun') {
             return props.setSelected([item, ...notBuns, item]);
         }
-        const bun = props.selected.find((item: any) => item.type === 'bun');
-        return props.setSelected([bun, ...notBuns, item, bun]);
+        const bun = props.selected.find((item: IIngredientItem) => item.type === 'bun');
+        return bun && props.setSelected([bun, ...notBuns, item, bun]);
     }
 
-    const handleClickImg = (e: any, item: any) => {
+    const handleClickImg = (e: React.MouseEvent, item: IIngredientItem) => {
         e.stopPropagation();
         setModalState({ active: true, item });
     }
@@ -96,18 +100,19 @@ const BurgerIngredients = (props: any) => {
         setModalState({ active: false, item: null });
     }
 
-    const counterList = props.selected.reduce((acc: any, item: any) => {
+    // Не в состоянии пока понять какой тип скормить acc
+    const counterList = props.selected.reduce((acc: any, item: IIngredientItem) => {
         if (!acc[item._id]) acc[item._id] = 0;
         acc[item._id]++;
         return acc;
     }, {});
 
 
-    const getCounter = (item: any) => {
+    const getCounter = (item: IIngredientItem) => {
         if (item.type === 'bun' && counterList[item._id]) {
-            return <Counter count={1} size="default" />
+            return (<Counter count={1} size="default" />)
         } else if (counterList[item._id]) {
-            return <Counter count={counterList[item._id]} size="default" />
+            return (<Counter count={counterList[item._id]} size="default" />)
         }
         return null;
     }
@@ -132,7 +137,7 @@ const BurgerIngredients = (props: any) => {
                             </p>
                             <div className={`${BurgerIngredientsStyle.items} pr-4 pl-4 mb-8`}>
                             {
-                                props.items[category.value].map((item: any) =>
+                                props.items[category.value].map((item: IIngredientItem) =>
                                     <div key={item._id} className={`${BurgerIngredientsStyle.item} mb-2`} onClick={() => handleClickItem(item)}>
                                         <div className="pl-4 pr-4">
                                             <picture>
@@ -159,16 +164,6 @@ const BurgerIngredients = (props: any) => {
             { modalState.active && modalState.item && <IngredientDetails {...modalState.item} onClose={handleCloseModal} /> }
         </div>
     )
-}
-
-BurgerIngredients.propTypes = {
-    items: PropTypes.shape({
-        bun: PropTypes.array.isRequired,
-        sauce: PropTypes.array.isRequired,
-        main: PropTypes.array.isRequired
-    }).isRequired,
-    selected: PropTypes.array.isRequired,
-    setSelected:PropTypes.func.isRequired
 }
 
 export default BurgerIngredients;

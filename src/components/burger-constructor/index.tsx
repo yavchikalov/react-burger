@@ -1,21 +1,25 @@
 import React from 'react';
 import { ConstructorElement, Button, CurrencyIcon, DragIcon } from '@ya.praktikum/react-developer-burger-ui-components';
 import BurgerConstructorStyle from './index.module.css';
-import OrderDetails from '../OrderDetails';
+import OrderDetails from '../order-details';
+import IIngredientItem from '../../types/IngredientItem';
+// import IIngredientList from '../../types/IngredientList';
 
-const BurgerConstructor = (props: any) => {
+
+const BurgerConstructor = (props: { items: Array<IIngredientItem>, setSelected: (items: Array<IIngredientItem>) => void }) => {
 
     const bunTop = props.items.length > 1 && props.items[0].type === 'bun' ? props.items[0] : null;
     const bunBottom = props.items.length > 1 && props.items[props.items.length - 1].type === 'bun' ? props.items[props.items.length - 1] : null;
-    const other = props.items.filter((item: any) => item.type !== 'bun');
+    const other = props.items.filter((item: IIngredientItem) => item.type !== 'bun');
 
-    const handleClose = (index: any) => {
+    const handleRemove = (index: number) => {
         const items = [...other];
         items.splice(index, 1);
-        props.setSelected([bunTop, ...items, bunBottom]);
+        bunTop && bunBottom && props.setSelected([bunTop, ...items, bunBottom]);
     }
 
-    const sum = props.items.reduce((acc: any, item: any) => acc + item.price, 0);
+    // Не в состоянии пока понять какой тип скормить acc
+    const sum = props.items.reduce((acc: any, item: IIngredientItem) => acc + item.price, 0);
 
     const [order, setOrder] = React.useState<string|null>(null);
 
@@ -30,20 +34,20 @@ const BurgerConstructor = (props: any) => {
     return (
         <div className={BurgerConstructorStyle.root}>
             {
-                bunTop && <div className={`${BurgerConstructorStyle.item} mr-2`}>
+                bunTop && (<div className={`${BurgerConstructorStyle.item} mr-2`}>
                     <ConstructorElement
                         type="top"
                         isLocked={true}
-                        text={bunTop.name}
+                        text={`${bunTop.name} (Верх)`}
                         price={bunTop.price}
                         thumbnail={bunTop.image}
                     />
-                </div>
+                </div>)
             }
             {
                 !!other.length && <div className={BurgerConstructorStyle.main}>
                     {
-                        other.map((item: any, index: any) =>
+                        other.map((item: IIngredientItem, index: number) => (
                             <div key={`${index}_${item._id}`} className={`${BurgerConstructorStyle.item} mr-2`}>
                                 <div className={`${BurgerConstructorStyle.drag} mr-4`}>
                                     <DragIcon type="primary" />
@@ -52,10 +56,10 @@ const BurgerConstructor = (props: any) => {
                                     text={item.name}
                                     price={item.price}
                                     thumbnail={item.image}
-                                    handleClose={() => handleClose(index)}
+                                    handleClose={() => handleRemove(index)}
                                 />
                             </div>
-                        )
+                        ))
                     }
                 </div>
             }
@@ -64,7 +68,7 @@ const BurgerConstructor = (props: any) => {
                     <ConstructorElement
                         type="bottom"
                         isLocked={true}
-                        text={bunBottom.name}
+                        text={`${bunBottom.name} (низ)`}
                         price={bunBottom.price}
                         thumbnail={bunBottom.image}
                     />

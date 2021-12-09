@@ -1,6 +1,6 @@
 import BaseStyle from './index.module.css';
 
-const LayoutBase = (props: any) => {
+const LayoutBase = (props: { children: React.ReactNode }) => {
     return (
         <main className={`${BaseStyle.main} pr-4 pl-4`}>
             { props.children }

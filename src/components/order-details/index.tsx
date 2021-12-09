@@ -1,4 +1,4 @@
-import Modal from "../Modal"
+import Modal from "../modal"
 import OrderDetailsStyle from './index.module.css';
 import { CheckMarkIcon } from '@ya.praktikum/react-developer-burger-ui-components';
 
@@ -15,7 +15,6 @@ const OrderDetails = (props: { number: string, onClose: () => void }) => {
                 </div>
                 <div className={`${OrderDetailsStyle.icon}`}>
                     <CheckMarkIcon type="primary" />
-                    {/* <img src={OrderDetailBackground} alt="Ваш заказ начали готовить" /> */}
                 </div>
                 <div className="mb-2 text text_type_main-small">
                     Ваш заказ начали готовить

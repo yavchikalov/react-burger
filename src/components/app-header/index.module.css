@@ -11,15 +11,16 @@
     margin: 0;
 }
 
-.li {
+.li a {
     display: flex;
-    align-items: center;
     color: var(--text-inactive-color);
     border-radius: 40px;
     cursor: pointer;
     transition: .3s;
+    text-decoration: none;
     /* border: 1px solid #fff; */
 }
+
 
 .li svg,
 .login svg {
@@ -33,7 +34,7 @@
     color: var(--text-primary-color);
 }
 
-.li_active {
+.li_active a {
     color: var(--text-primary-color); 
 }
 
@@ -42,7 +43,7 @@
     line-height: 0;
 }
 
-.li:hover {
+.li:hover a {
     color: var(--text-primary-color);
 }
 
@@ -77,6 +78,7 @@
     cursor: pointer;
     color: var(--text-inactive-color);
     transition: .3s;
+    text-decoration: none;
 }
 
 @media screen and (max-width: 980px) {
