@@ -1,6 +1,4 @@
-import Modal from '../modal';
 import IngredientDetailsStyle from './index.module.css';
-
 interface IIngredientDetails {
     calories: number;
     proteins: number;
@@ -8,39 +6,34 @@ interface IIngredientDetails {
     carbohydrates: number;
     image_large: string;
     name: string;
-    onClose: () => void
 }
 
 const IngredientDetails = (props: IIngredientDetails) => {
     return (
-        <Modal header="Детали ингредиента" onClose={props.onClose}>
-            <div className={IngredientDetailsStyle.root}>
-                <div className="mb-4">
-                    <img src={props.image_large} alt={props.name} />
-                </div>
-                <div className="mb-8 text text_type_main-medium">
-                    {props.name}
-                </div>
-                <div className={`${IngredientDetailsStyle.content} mb-5`}>
-                    <div className={`${IngredientDetailsStyle.item} mr-5`}>
-                        <div className="text text_type_main-default mb-2">Калории,ккал</div>
-                        <div className="text text_type_digits-default">{props.calories}</div>
-                    </div>
-                    <div className={`${IngredientDetailsStyle.item} mr-5`}>
-                        <div className="text text_type_main-default mb-2">Белки, г</div>
-                        <div className="text text_type_digits-default">{props.proteins}</div>
-                    </div>
-                    <div className={`${IngredientDetailsStyle.item} mr-5`}>
-                        <div className="text text_type_main-default mb-2">Жиры, г</div>
-                        <div className="text text_type_digits-default">{props.fat}</div>
-                    </div>
-                    <div className={`${IngredientDetailsStyle.item}`}>
-                        <div className="text text_type_main-default mb-2">Углеводы, г</div>
-                        <div className="text text_type_digits-default">{props.carbohydrates}</div>
-                    </div>
-                </div>
-            </div>
-        </Modal>
+        <div className={IngredientDetailsStyle.root}>
+            <img src={props.image_large} alt={props.name} className="mb-4" />
+            <h2 className="mb-8 text text_type_main-medium">
+                {props.name}
+            </h2>
+            <ul className={`${IngredientDetailsStyle.content} mb-5`}>
+                <li className={`${IngredientDetailsStyle.item} mr-5`}>
+                    <span className="text text_type_main-default mb-2">Калории,ккал</span>
+                    <span className="text text_type_digits-default">{props.calories}</span>
+                </li>
+                <li className={`${IngredientDetailsStyle.item} mr-5`}>
+                    <span className="text text_type_main-default mb-2">Белки, г</span>
+                    <span className="text text_type_digits-default">{props.proteins}</span>
+                </li>
+                <li className={`${IngredientDetailsStyle.item} mr-5`}>
+                    <span className="text text_type_main-default mb-2">Жиры, г</span>
+                    <span className="text text_type_digits-default">{props.fat}</span>
+                </li>
+                <li className={`${IngredientDetailsStyle.item}`}>
+                    <span className="text text_type_main-default mb-2">Углеводы, г</span>
+                    <span className="text text_type_digits-default">{props.carbohydrates}</span>
+                </li>
+            </ul>
+        </div>
     )
 };
 

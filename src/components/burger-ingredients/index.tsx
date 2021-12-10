@@ -2,8 +2,9 @@ import React from 'react';
 import { Tab, CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-components';
 import BurgerIngredientsStyle from './index.module.css';
 import IngredientDetails from '../ingredient-details';
-// import IIngredientList from '../../types/IngredientList';
+import IIngredients from '../../types/Ingredients';
 import IIngredientItem from '../../types/IngredientItem';
+import Modal from '../modal';
 
 interface ITabs {
     title: string;
@@ -29,19 +30,16 @@ const tabList = [
     }
 ];
 
-
-// items: any не могу разобраться, пробовал IIngredientList, но начинается ругаться на props.items[category.value]
-const BurgerIngredients = (props: { items: any, selected: Array<IIngredientItem>, setSelected: (items: Array<IIngredientItem>) => void }) => {
+const BurgerIngredients = (props: { items: IIngredients, selected: Array<IIngredientItem>, setSelected: (items: Array<IIngredientItem>) => void }) => {
     const [tabs, setTabs] = React.useState<Array<ITabs>>(tabList);
     const [currentScrollTop, setCurrentScrollTop] = React.useState(0);
 
-    const handleScrollTab = (event: Event) => {
-        const element = event.currentTarget as HTMLElement;
-        setCurrentScrollTop(element.scrollTop);
-    };
-
     React.useEffect(() => {
-        const list = tabList.reduce((acc: any, item) => {
+        const handleScrollTab = (event: Event) => {
+            const element = event.currentTarget as HTMLElement;
+            setCurrentScrollTop(element.scrollTop);
+        };
+        const list = tabList.reduce((acc: { tabs: any, point: number }, item) => {
             const element = document.getElementById(item.value);
             if (element) {
                 const point = acc.point + element.scrollHeight;
@@ -161,7 +159,13 @@ const BurgerIngredients = (props: { items: any, selected: Array<IIngredientItem>
                     )
                 }
             </div>
-            { modalState.active && modalState.item && <IngredientDetails {...modalState.item} onClose={handleCloseModal} /> }
+            { modalState.active && modalState.item && 
+                (
+                    <Modal header="Детали ингредиента" onClose={handleCloseModal}>
+                        <IngredientDetails {...modalState.item} />
+                    </Modal>
+                )
+            }
         </div>
     )
 }

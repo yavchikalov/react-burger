@@ -1,15 +1,21 @@
 import React from 'react';
 import BaseHeader from '../app-header';
 import Main from '../main';
+import ErrorMessage from '../error-message';
 import IIngredientItem from '../../types/IngredientItem';
+import { API_INGREDIENTS } from '../../const/api';
 
 function App() {
     const [ingredients, setIngredients] = React.useState();
+    const [isError, setError] = React.useState(false);
 
     React.useEffect(() => {
-        fetch('https://norma.nomoreparties.space/api/ingredients')
+        fetch(API_INGREDIENTS)
             .then((response) => {
-                return response.json();
+                if (response.ok) {
+                    return response.json();
+                }
+                return Promise.reject(new Error('Error while retrieving data'));
             })
             .then(({ data }) => {
                 if (data) {
@@ -22,16 +28,32 @@ function App() {
                         }, {})
                     )
                 }
+            })
+            .catch(() => {
+                setError(true);
             });
     }, []);
 
+    const CurrentContent = () => {
+        if (!isError && ingredients) {
+            return (
+                <Main ingredients={ingredients} />
+            );
+        } else if (isError) {
+            return (
+                <div className="m-10">
+                    <ErrorMessage text="Ошибка при получении данных, попробуйте позднее." />
+                </div>
+            );
+        }
+        return (<></>);
+    };
+
     return (
-        <div className="App">
+        <>
             <BaseHeader />
-            {
-                ingredients && (<Main ingredients={ingredients} />)
-            }
-        </div>
+            <CurrentContent />
+        </>
     );
 }
 

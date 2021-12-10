@@ -8,17 +8,17 @@ import './animation.css';
 
 const modalRoot: HTMLElement | null = document.getElementById("react-modals");
 
-const Modal = (props: { header?: string, children: React.ReactNode, onClose: () => void }) => {
+const Modal = ({ header, children, onClose }: { header?: string, children: React.ReactNode, onClose: () => void }) => {
 
     const [inAnimation, setAnimation] = React.useState(false);
 
     React.useEffect(() => {
         const handleKeyDownEsc = (e: KeyboardEvent) => {
-            if (e.code === 'Escape') props.onClose();
+            if (e.code === 'Escape') onClose();
         }
         document.addEventListener('keydown', handleKeyDownEsc);
         return () => document.removeEventListener('keydown', handleKeyDownEsc);
-    }, [props])
+    }, [onClose])
 
     React.useEffect(() => {
         setAnimation(true);
@@ -29,30 +29,31 @@ const Modal = (props: { header?: string, children: React.ReactNode, onClose: () 
     };
 
     return modalRoot && ReactDOM.createPortal(
-        <ModalOverlay onClick={handleClose}>
-            <div className={`${ModalStyle.root}`}>
+        <div>
+            <div className={`${ModalStyle.contentWrapper}`}>
                 <CSSTransition
                     mountOnEnter
                     unmountOnExit
                     in={inAnimation}
                     timeout={50}
                     classNames="animation-scale"
-                    onExited={props.onClose}
+                    onExited={onClose}
                 >
                     <div className={`${ModalStyle.content} p-10`}>
                         <div className={`${ModalStyle.header}`}>
                             <div className={`${ModalStyle.title} text text_type_main-large`}>
-                                {props.header}
+                                {header}
                             </div>
                             <div className={`${ModalStyle.icon}`}>
                                 <CloseIcon type="primary" onClick={handleClose} />
                             </div>
                         </div>
-                        {props.children}
+                        {children}
                     </div>
                 </CSSTransition>
             </div>
-        </ModalOverlay>,
+            <ModalOverlay onClick={handleClose} />
+        </div>,
         modalRoot
     )
 };

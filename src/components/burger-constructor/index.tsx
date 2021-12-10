@@ -3,6 +3,7 @@ import { ConstructorElement, Button, CurrencyIcon, DragIcon } from '@ya.praktiku
 import BurgerConstructorStyle from './index.module.css';
 import OrderDetails from '../order-details';
 import IIngredientItem from '../../types/IngredientItem';
+import Modal from '../modal';
 // import IIngredientList from '../../types/IngredientList';
 
 
@@ -19,7 +20,7 @@ const BurgerConstructor = (props: { items: Array<IIngredientItem>, setSelected: 
     }
 
     // Не в состоянии пока понять какой тип скормить acc
-    const sum = props.items.reduce((acc: any, item: IIngredientItem) => acc + item.price, 0);
+    const sum = props.items.reduce((acc: number, item: IIngredientItem) => acc + item.price, 0);
 
     const [order, setOrder] = React.useState<string|null>(null);
 
@@ -87,7 +88,13 @@ const BurgerConstructor = (props: { items: Array<IIngredientItem>, setSelected: 
                     Оформить заказ
                 </Button>
             </div>
-            { order && <OrderDetails number={order} onClose={handleCloseModal} />}
+            { order &&
+                (
+                    <Modal onClose={handleCloseModal}>
+                        <OrderDetails number={order} />
+                    </Modal>
+                )
+            }
         </div>
     );
 }
