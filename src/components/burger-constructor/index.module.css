@@ -1,0 +1,63 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 50vh;
+    overflow: auto;
+}
+.main::-webkit-scrollbar {
+    width: 8px;
+}
+ 
+.main::-webkit-scrollbar-track {
+    background-color: var(--background-element);
+    height: 50%;
+}
+ 
+.main::-webkit-scrollbar-thumb {
+    background-color: var(--text-inactive-color);
+    height: 50%;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    user-select: none;
+}
+
+.bottom {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.sum {
+    display: flex;
+    align-items: center;
+}
+
+.icon,
+.icon svg {
+    width: 33px;
+    height: 33px;
+}
+
+.drag {
+    cursor: pointer;
+}
+
+@media screen and (max-width: 450px) {
+    .bottom {
+        flex-direction: column;
+    }
+    .sum {
+        margin: 0 0 24px 0;
+    }
+}

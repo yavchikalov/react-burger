@@ -1,0 +1,35 @@
+.contentWrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    will-change: transform;
+    transform: translate(-50%, -50%);
+    max-width: 720px;
+    width: 100%;
+    z-index: 100;
+}
+
+.content {
+    border: 1px solid rgba(76, 76, 255, 0.2);
+    background: var(--background);
+    border-radius: 40px;
+    will-change: transform;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.icon {
+    line-height: 0;
+    cursor: pointer;
+}
+
+@keyframes scale {
+    100% {
+        transform: translate(-50%, -50%) scale(1)
+    }
+}
