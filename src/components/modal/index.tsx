@@ -29,7 +29,7 @@ const Modal = ({ header, children, onClose }: { header?: string, children: React
     };
 
     return modalRoot && ReactDOM.createPortal(
-        <div>
+        <>
             <div className={`${ModalStyle.contentWrapper}`}>
                 <CSSTransition
                     mountOnEnter
@@ -53,7 +53,7 @@ const Modal = ({ header, children, onClose }: { header?: string, children: React
                 </CSSTransition>
             </div>
             <ModalOverlay onClick={handleClose} />
-        </div>,
+        </>,
         modalRoot
     )
 };
