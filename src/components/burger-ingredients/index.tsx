@@ -2,10 +2,9 @@ import React from 'react';
 import { Tab, CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-components';
 import BurgerIngredientsStyle from './index.module.css';
 import IngredientDetails from '../ingredient-details';
-import IIngredients from '../../types/Ingredients';
 import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
-import { SelectedIngredientsContext } from '../../contexts/mainContext';
+import { SelectedIngredientsContext, IngredientsContext } from '../../contexts/appContext';
 
 interface ITabs {
     title: string;
@@ -31,8 +30,9 @@ const tabList = [
     }
 ];
 
-const BurgerIngredients = (props: { items: IIngredients }) => {
+const BurgerIngredients = () => {
     const { selectedIngredients, setSelectedIngredients }  = React.useContext(SelectedIngredientsContext);
+    const { ingredients }  = React.useContext(IngredientsContext);
     const [tabs, setTabs] = React.useState<Array<ITabs>>(tabList);
     const [currentScrollTop, setCurrentScrollTop] = React.useState(0);
 
@@ -137,7 +137,7 @@ const BurgerIngredients = (props: { items: IIngredients }) => {
                             </p>
                             <div className={`${BurgerIngredientsStyle.items} pr-4 pl-4 mb-8`}>
                             {
-                                props.items[category.value].map((item: IIngredientItem) =>
+                                ingredients[category.value].map((item: IIngredientItem) =>
                                     <div key={item._id} className={`${BurgerIngredientsStyle.item} mb-2`} onClick={() => handleClickItem(item)}>
                                         <div className="pl-4 pr-4">
                                             <picture>

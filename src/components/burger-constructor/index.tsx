@@ -6,7 +6,7 @@ import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
 import { API_ORDERS } from '../../const/api';
 import ErrorMessage from '../error-message';
-import { SelectedIngredientsContext } from '../../contexts/mainContext';
+import { SelectedIngredientsContext } from '../../contexts/appContext';
 
 const BurgerConstructor = () => {
     const { selectedIngredients, setSelectedIngredients }  = React.useContext(SelectedIngredientsContext);
