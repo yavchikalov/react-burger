@@ -30,6 +30,7 @@ const BurgerConstructor = () => {
     const other = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
     const [isError, setError] = React.useState(false);
     const [order, setOrder] = React.useState<string|null>(null);
+    const [loading, setLoading] = React.useState(false);
 
     React.useEffect(() => {
         selectedIngredients.forEach((ingredient: IIngredientItem) => {
@@ -45,24 +46,32 @@ const BurgerConstructor = () => {
     }
 
     const handleOrder = () => {
-        // setOrder(Math.random().toString().substring(2, 8))
-        const ingredients = JSON.stringify({ ingredients: selectedIngredients.map((item: IIngredientItem) => item._id) });
-        fetch(API_ORDERS, {
-            method: 'POST',
-            body: ingredients
-        })
-            .then((response) => {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(new Error('Error while retrieving data'));
+        if (!loading) {
+            const ingredients = JSON.stringify({ ingredients: selectedIngredients.map((item: IIngredientItem) => item._id) });
+            setLoading(true);
+            fetch(API_ORDERS, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: ingredients
             })
-            .then(({ data }) => {
-                console.warn('API_ORDERS', data);
-            })
-            .catch(() => {
-                setError(true);
-            });
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    return Promise.reject(new Error('Error while retrieving data'));
+                })
+                .then(({ order }) => {
+                    if (order?.number) setOrder(order.number);
+                })
+                .catch(() => {
+                    setError(true);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
     }
 
     const handleCloseModalError = () => {
@@ -126,7 +135,7 @@ const BurgerConstructor = () => {
                     </div>
                 </div>
                 <Button type="primary" size="medium" onClick={handleOrder}>
-                    Оформить заказ
+                    { loading ? 'Оформляем...' : 'Оформить заказ' }
                 </Button>
             </div>
             { 
