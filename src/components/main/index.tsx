@@ -15,8 +15,8 @@ const Main = (props: { ingredients: IIngredients }) => {
             <LayoutBase>
                 <h1 className="text text_type_main-large mb-5">Соберите бургер</h1>
                 <div className={`${MainStyle.content}`}>
-                    <BurgerIngredients items={props.ingredients} selected={selectedIngredients} setSelected={setSelectedIngredients} />
                     <SelectedIngredientsContext.Provider value={{ selectedIngredients, setSelectedIngredients }}>
+                        <BurgerIngredients items={props.ingredients} />
                         <BurgerConstructor />
                     </SelectedIngredientsContext.Provider>
                 </div>

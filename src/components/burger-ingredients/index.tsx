@@ -5,6 +5,7 @@ import IngredientDetails from '../ingredient-details';
 import IIngredients from '../../types/Ingredients';
 import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
+import { SelectedIngredientsContext } from '../../contexts/mainContext';
 
 interface ITabs {
     title: string;
@@ -30,7 +31,8 @@ const tabList = [
     }
 ];
 
-const BurgerIngredients = (props: { items: IIngredients, selected: Array<IIngredientItem>, setSelected: (items: Array<IIngredientItem>) => void }) => {
+const BurgerIngredients = (props: { items: IIngredients }) => {
+    const { selectedIngredients, setSelectedIngredients }  = React.useContext(SelectedIngredientsContext);
     const [tabs, setTabs] = React.useState<Array<ITabs>>(tabList);
     const [currentScrollTop, setCurrentScrollTop] = React.useState(0);
 
@@ -81,12 +83,12 @@ const BurgerIngredients = (props: { items: IIngredients, selected: Array<IIngred
     }
 
     const handleClickItem = (item: IIngredientItem) => {
-        const notBuns = props.selected.filter((item: IIngredientItem) => item.type !== 'bun');
+        const notBuns = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
         if (item.type === 'bun') {
-            return props.setSelected([item, ...notBuns, item]);
+            return setSelectedIngredients([item, ...notBuns, item]);
         }
-        const bun = props.selected.find((item: IIngredientItem) => item.type === 'bun');
-        return bun && props.setSelected([bun, ...notBuns, item, bun]);
+        const bun = selectedIngredients.find((item: IIngredientItem) => item.type === 'bun');
+        return bun && setSelectedIngredients([bun, ...notBuns, item, bun]);
     }
 
     const handleClickImg = (e: React.MouseEvent, item: IIngredientItem) => {
@@ -99,7 +101,7 @@ const BurgerIngredients = (props: { items: IIngredients, selected: Array<IIngred
     }
 
     // Не в состоянии пока понять какой тип скормить acc
-    const counterList = props.selected.reduce((acc: any, item: IIngredientItem) => {
+    const counterList = selectedIngredients.reduce((acc: any, item: IIngredientItem) => {
         if (!acc[item._id]) acc[item._id] = 0;
         acc[item._id]++;
         return acc;
