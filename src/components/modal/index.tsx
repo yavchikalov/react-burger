@@ -28,6 +28,8 @@ const Modal = ({ header, children, onClose }: { header?: string, children: React
         setAnimation(false);
     };
 
+    const nodeRef = React.useRef(null);
+
     return modalRoot && ReactDOM.createPortal(
         <>
             <div className={`${ModalStyle.contentWrapper}`}>
@@ -38,8 +40,9 @@ const Modal = ({ header, children, onClose }: { header?: string, children: React
                     timeout={50}
                     classNames="animation-scale"
                     onExited={onClose}
+                    nodeRef={nodeRef}
                 >
-                    <div className={`${ModalStyle.content} p-10`}>
+                    <div ref={nodeRef} className={`${ModalStyle.content} p-10`}>
                         <div className={`${ModalStyle.header}`}>
                             <div className={`${ModalStyle.title} text text_type_main-large`}>
                                 {header}

@@ -1,1 +1,3 @@
-export const API_INGREDIENTS = 'https://norma.nomoreparties.space/api/ingredients';
+export const API = 'https://norma.nomoreparties.space/api';
+export const API_INGREDIENTS = `${API}/ingredients`;
+export const API_ORDERS = `${API}/orders`;

@@ -4,29 +4,26 @@ import Main from '../main';
 import ErrorMessage from '../error-message';
 import IIngredientItem from '../../types/IngredientItem';
 import { API_INGREDIENTS } from '../../const/api';
+import { SelectedIngredientsContext, IngredientsContext } from '../../contexts/appContext';
+import { checkResponse } from '../../utils/helper';
 
 function App() {
     const [ingredients, setIngredients] = React.useState();
     const [isError, setError] = React.useState(false);
+    const [selectedIngredients, setSelectedIngredients] = React.useState<IIngredientItem[]>([]);
 
     React.useEffect(() => {
         fetch(API_INGREDIENTS)
-            .then((response) => {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(new Error('Error while retrieving data'));
-            })
+            .then(checkResponse)
             .then(({ data }) => {
                 if (data) {
-                    setIngredients(
-                        // Не в состоянии пока понять какой тип скормить acc
-                        data.reduce((acc: any, item: IIngredientItem) => {
-                            if (!acc[item.type]) acc[item.type] = [];
-                            acc[item.type].push(item);
-                            return acc;
-                        }, {})
-                    )
+                    const ingredients = data.reduce((acc: any, item: IIngredientItem) => {
+                        if (!acc[item.type]) acc[item.type] = [];
+                        acc[item.type].push(item);
+                        return acc;
+                    }, {});
+                    setIngredients(ingredients);
+                    setSelectedIngredients([ingredients.bun[0], ingredients.sauce[0], ingredients.main[0], ingredients.bun[0]]);
                 }
             })
             .catch(() => {
@@ -34,10 +31,10 @@ function App() {
             });
     }, []);
 
-    const CurrentContent = () => {
+    const CurrentContent = React.useMemo(() => {
         if (!isError && ingredients) {
             return (
-                <Main ingredients={ingredients} />
+                <Main />
             );
         } else if (isError) {
             return (
@@ -47,12 +44,16 @@ function App() {
             );
         }
         return (<></>);
-    };
+    }, [ingredients, isError]);
 
     return (
         <>
             <BaseHeader />
-            <CurrentContent />
+            <IngredientsContext.Provider value={{ ingredients, setIngredients }}>
+                <SelectedIngredientsContext.Provider value={{ selectedIngredients, setSelectedIngredients }}>
+                    {CurrentContent}
+                </SelectedIngredientsContext.Provider>
+            </IngredientsContext.Provider>
         </>
     );
 }

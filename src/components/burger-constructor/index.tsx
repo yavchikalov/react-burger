@@ -4,28 +4,73 @@ import BurgerConstructorStyle from './index.module.css';
 import OrderDetails from '../order-details';
 import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
-// import IIngredientList from '../../types/IngredientList';
+import { API_ORDERS } from '../../const/api';
+import ErrorMessage from '../error-message';
+import { SelectedIngredientsContext } from '../../contexts/appContext';
+import { checkResponse } from '../../utils/helper';
 
+function totalReducer(state: number, action: { type: string, payload: number }): number {
+    switch (action.type) {
+        case 'increase':
+            return state + action.payload;
+        case 'decrease':
+            return state - action.payload;
+        case 'set':
+            return action.payload;
+        default:
+            throw new Error(`Wrong type of action: ${action.type}`);
+    }
+}
 
-const BurgerConstructor = (props: { items: Array<IIngredientItem>, setSelected: (items: Array<IIngredientItem>) => void }) => {
+const BurgerConstructor = () => {
+    const { selectedIngredients, setSelectedIngredients }  = React.useContext(SelectedIngredientsContext);
+    const [totalState, totalDispatch] = React.useReducer(totalReducer, 0);
+    const bunTop = selectedIngredients.length > 1 && selectedIngredients[0].type === 'bun' ? selectedIngredients[0] : null;
+    const bunBottom = selectedIngredients.length > 1 && selectedIngredients[selectedIngredients.length - 1].type === 'bun' ? selectedIngredients[selectedIngredients.length - 1] : null;
+    const other = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
+    const [isError, setError] = React.useState(false);
+    const [order, setOrder] = React.useState<string|null>(null);
+    const [loading, setLoading] = React.useState(false);
 
-    const bunTop = props.items.length > 1 && props.items[0].type === 'bun' ? props.items[0] : null;
-    const bunBottom = props.items.length > 1 && props.items[props.items.length - 1].type === 'bun' ? props.items[props.items.length - 1] : null;
-    const other = props.items.filter((item: IIngredientItem) => item.type !== 'bun');
+    React.useEffect(() => {
+        selectedIngredients.forEach((ingredient: IIngredientItem) => {
+            totalDispatch({ type: 'increase', payload: ingredient.price });
+        });
+        return totalDispatch.bind(null, { type: 'set', payload: 0 });
+    }, [selectedIngredients])
 
     const handleRemove = (index: number) => {
         const items = [...other];
         items.splice(index, 1);
-        bunTop && bunBottom && props.setSelected([bunTop, ...items, bunBottom]);
+        bunTop && bunBottom && setSelectedIngredients([bunTop, ...items, bunBottom]);
     }
 
-    // Не в состоянии пока понять какой тип скормить acc
-    const sum = props.items.reduce((acc: number, item: IIngredientItem) => acc + item.price, 0);
-
-    const [order, setOrder] = React.useState<string|null>(null);
-
     const handleOrder = () => {
-        setOrder(Math.random().toString().substring(2, 8))
+        if (!loading) {
+            const ingredients = JSON.stringify({ ingredients: selectedIngredients.map((item: IIngredientItem) => item._id) });
+            setLoading(true);
+            fetch(API_ORDERS, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: ingredients
+            })
+                .then(checkResponse)
+                .then(({ order }) => {
+                    if (order?.number) setOrder(order.number);
+                })
+                .catch(() => {
+                    setError(true);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+    }
+
+    const handleCloseModalError = () => {
+        setError(false);
     }
 
     const handleCloseModal = () => {
@@ -78,20 +123,31 @@ const BurgerConstructor = (props: { items: Array<IIngredientItem>, setSelected: 
             <div className={`${BurgerConstructorStyle.bottom} mt-10`}>
                 <div className={`${BurgerConstructorStyle.sum} mr-10`}>
                     <div className={`${BurgerConstructorStyle.value} text text_type_digits-medium mr-2`}>
-                        {sum}
+                        {totalState}
                     </div>
                     <div className={`${BurgerConstructorStyle.icon}`}>
                         <CurrencyIcon type="primary" />
                     </div>
                 </div>
                 <Button type="primary" size="medium" onClick={handleOrder}>
-                    Оформить заказ
+                    { loading ? 'Оформляем...' : 'Оформить заказ' }
                 </Button>
             </div>
-            { order &&
+            { 
+                order &&
                 (
                     <Modal onClose={handleCloseModal}>
                         <OrderDetails number={order} />
+                    </Modal>
+                )
+            }
+            {
+                isError &&
+                (
+                    <Modal onClose={handleCloseModalError}>
+                        <div className="p-4">
+                            <ErrorMessage text="Ошибка при оформлении заказа, попробуйте еще раз!" />
+                        </div>
                     </Modal>
                 )
             }
