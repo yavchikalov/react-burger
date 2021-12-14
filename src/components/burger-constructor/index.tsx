@@ -4,14 +4,17 @@ import BurgerConstructorStyle from './index.module.css';
 import OrderDetails from '../order-details';
 import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
-// import IIngredientList from '../../types/IngredientList';
-
+import { API_ORDERS } from '../../const/api';
+import ErrorMessage from '../error-message';
 
 const BurgerConstructor = (props: { items: Array<IIngredientItem>, setSelected: (items: Array<IIngredientItem>) => void }) => {
 
     const bunTop = props.items.length > 1 && props.items[0].type === 'bun' ? props.items[0] : null;
     const bunBottom = props.items.length > 1 && props.items[props.items.length - 1].type === 'bun' ? props.items[props.items.length - 1] : null;
     const other = props.items.filter((item: IIngredientItem) => item.type !== 'bun');
+    const [isError, setError] = React.useState(false);
+    const sum = props.items.reduce((acc: number, item: IIngredientItem) => acc + item.price, 0);
+    const [order, setOrder] = React.useState<string|null>(null);
 
     const handleRemove = (index: number) => {
         const items = [...other];
@@ -19,13 +22,29 @@ const BurgerConstructor = (props: { items: Array<IIngredientItem>, setSelected: 
         bunTop && bunBottom && props.setSelected([bunTop, ...items, bunBottom]);
     }
 
-    // Не в состоянии пока понять какой тип скормить acc
-    const sum = props.items.reduce((acc: number, item: IIngredientItem) => acc + item.price, 0);
-
-    const [order, setOrder] = React.useState<string|null>(null);
-
     const handleOrder = () => {
-        setOrder(Math.random().toString().substring(2, 8))
+        // setOrder(Math.random().toString().substring(2, 8))
+        const params = JSON.stringify({ ingredients: props.items.map((item: IIngredientItem) => item._id) });
+        fetch(API_ORDERS, {
+            method: 'POST',
+            body: params
+        })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return Promise.reject(new Error('Error while retrieving data'));
+            })
+            .then(({ data }) => {
+                console.warn('API_ORDERS', data);
+            })
+            .catch(() => {
+                setError(true);
+            });
+    }
+
+    const handleCloseModalError = () => {
+        setError(false);
     }
 
     const handleCloseModal = () => {
@@ -88,10 +107,21 @@ const BurgerConstructor = (props: { items: Array<IIngredientItem>, setSelected: 
                     Оформить заказ
                 </Button>
             </div>
-            { order &&
+            { 
+                order &&
                 (
                     <Modal onClose={handleCloseModal}>
                         <OrderDetails number={order} />
+                    </Modal>
+                )
+            }
+            {
+                isError &&
+                (
+                    <Modal onClose={handleCloseModalError}>
+                        <div className="p-4">
+                            <ErrorMessage text="Ошибка при оформлении заказа, попробуйте еще раз!" />
+                        </div>
                     </Modal>
                 )
             }
