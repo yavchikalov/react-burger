@@ -5,6 +5,7 @@ import ErrorMessage from '../error-message';
 import IIngredientItem from '../../types/IngredientItem';
 import { API_INGREDIENTS } from '../../const/api';
 import { SelectedIngredientsContext, IngredientsContext } from '../../contexts/appContext';
+import { checkResponse } from '../../utils/helper';
 
 function App() {
     const [ingredients, setIngredients] = React.useState();
@@ -13,12 +14,7 @@ function App() {
 
     React.useEffect(() => {
         fetch(API_INGREDIENTS)
-            .then((response) => {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(new Error('Error while retrieving data'));
-            })
+            .then(checkResponse)
             .then(({ data }) => {
                 if (data) {
                     const ingredients = data.reduce((acc: any, item: IIngredientItem) => {
@@ -27,7 +23,7 @@ function App() {
                         return acc;
                     }, {});
                     setIngredients(ingredients);
-                    setSelectedIngredients([ingredients.bun[0], ingredients.bun[0]]);
+                    setSelectedIngredients([ingredients.bun[0], ingredients.sauce[0], ingredients.main[0], ingredients.bun[0]]);
                 }
             })
             .catch(() => {

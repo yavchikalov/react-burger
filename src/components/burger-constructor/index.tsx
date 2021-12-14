@@ -7,7 +7,7 @@ import Modal from '../modal';
 import { API_ORDERS } from '../../const/api';
 import ErrorMessage from '../error-message';
 import { SelectedIngredientsContext } from '../../contexts/appContext';
-
+import { checkResponse } from '../../utils/helper';
 
 function totalReducer(state: number, action: { type: string, payload: number }): number {
     switch (action.type) {
@@ -56,12 +56,7 @@ const BurgerConstructor = () => {
                 },
                 body: ingredients
             })
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                    return Promise.reject(new Error('Error while retrieving data'));
-                })
+                .then(checkResponse)
                 .then(({ order }) => {
                     if (order?.number) setOrder(order.number);
                 })
