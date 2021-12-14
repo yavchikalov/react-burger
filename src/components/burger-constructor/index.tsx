@@ -6,28 +6,30 @@ import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
 import { API_ORDERS } from '../../const/api';
 import ErrorMessage from '../error-message';
+import { SelectedIngredientsContext } from '../../contexts/mainContext';
 
-const BurgerConstructor = (props: { items: Array<IIngredientItem>, setSelected: (items: Array<IIngredientItem>) => void }) => {
+const BurgerConstructor = () => {
+    const { selectedIngredients, setSelectedIngredients }  = React.useContext(SelectedIngredientsContext);
 
-    const bunTop = props.items.length > 1 && props.items[0].type === 'bun' ? props.items[0] : null;
-    const bunBottom = props.items.length > 1 && props.items[props.items.length - 1].type === 'bun' ? props.items[props.items.length - 1] : null;
-    const other = props.items.filter((item: IIngredientItem) => item.type !== 'bun');
+    const bunTop = selectedIngredients.length > 1 && selectedIngredients[0].type === 'bun' ? selectedIngredients[0] : null;
+    const bunBottom = selectedIngredients.length > 1 && selectedIngredients[selectedIngredients.length - 1].type === 'bun' ? selectedIngredients[selectedIngredients.length - 1] : null;
+    const other = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
     const [isError, setError] = React.useState(false);
-    const sum = props.items.reduce((acc: number, item: IIngredientItem) => acc + item.price, 0);
+    const sum = selectedIngredients.reduce((acc: number, item: IIngredientItem) => acc + item.price, 0);
     const [order, setOrder] = React.useState<string|null>(null);
 
     const handleRemove = (index: number) => {
         const items = [...other];
         items.splice(index, 1);
-        bunTop && bunBottom && props.setSelected([bunTop, ...items, bunBottom]);
+        bunTop && bunBottom && setSelectedIngredients([bunTop, ...items, bunBottom]);
     }
 
     const handleOrder = () => {
         // setOrder(Math.random().toString().substring(2, 8))
-        const params = JSON.stringify({ ingredients: props.items.map((item: IIngredientItem) => item._id) });
+        const ingredients = JSON.stringify({ ingredients: selectedIngredients.map((item: IIngredientItem) => item._id) });
         fetch(API_ORDERS, {
             method: 'POST',
-            body: params
+            body: ingredients
         })
             .then((response) => {
                 if (response.ok) {
