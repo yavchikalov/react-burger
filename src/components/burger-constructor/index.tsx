@@ -4,10 +4,10 @@ import BurgerConstructorStyle from './index.module.css';
 import OrderDetails from '../order-details';
 import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
-import { API_ORDERS } from '../../const/api';
 import ErrorMessage from '../error-message';
-import { SelectedIngredientsContext } from '../../contexts/appContext';
-import { checkResponse } from '../../utils/helper';
+import {CREATE_ORDER, SET_ORDER, SET_SELECTED_INGREDIENTS, SET_ORDER_ERROR} from "../../services/actions";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../services/reducers";
 
 function totalReducer(state: number, action: { type: string, payload: number }): number {
     switch (action.type) {
@@ -23,14 +23,17 @@ function totalReducer(state: number, action: { type: string, payload: number }):
 }
 
 const BurgerConstructor = () => {
-    const { selectedIngredients, setSelectedIngredients }  = React.useContext(SelectedIngredientsContext);
+    const { selectedIngredients, isOrderLoading, isOrderError, order } = useSelector((state: RootState) => ({
+        selectedIngredients: state.selectedIngredients,
+        isOrderLoading: state.isOrderLoading,
+        isOrderError: state.isOrderError,
+        order: state.order,
+    }));
+    const dispatch = useDispatch();
     const [totalState, totalDispatch] = React.useReducer(totalReducer, 0);
     const bunTop = selectedIngredients.length > 1 && selectedIngredients[0].type === 'bun' ? selectedIngredients[0] : null;
     const bunBottom = selectedIngredients.length > 1 && selectedIngredients[selectedIngredients.length - 1].type === 'bun' ? selectedIngredients[selectedIngredients.length - 1] : null;
     const other = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
-    const [isError, setError] = React.useState(false);
-    const [order, setOrder] = React.useState<string|null>(null);
-    const [loading, setLoading] = React.useState(false);
 
     React.useEffect(() => {
         selectedIngredients.forEach((ingredient: IIngredientItem) => {
@@ -42,39 +45,22 @@ const BurgerConstructor = () => {
     const handleRemove = (index: number) => {
         const items = [...other];
         items.splice(index, 1);
-        bunTop && bunBottom && setSelectedIngredients([bunTop, ...items, bunBottom]);
+        bunTop && bunBottom && dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [bunTop, ...items, bunBottom] });
     }
 
     const handleOrder = () => {
-        if (!loading) {
+        if (!isOrderLoading) {
             const ingredients = JSON.stringify({ ingredients: selectedIngredients.map((item: IIngredientItem) => item._id) });
-            setLoading(true);
-            fetch(API_ORDERS, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: ingredients
-            })
-                .then(checkResponse)
-                .then(({ order }) => {
-                    if (order?.number) setOrder(order.number);
-                })
-                .catch(() => {
-                    setError(true);
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
+            dispatch(CREATE_ORDER(ingredients));
         }
     }
 
     const handleCloseModalError = () => {
-        setError(false);
+        dispatch({ type: SET_ORDER_ERROR, payload: false });
     }
 
     const handleCloseModal = () => {
-        setOrder(null);
+        dispatch({ type: SET_ORDER, payload: null });
     }
 
     return (
@@ -130,19 +116,19 @@ const BurgerConstructor = () => {
                     </div>
                 </div>
                 <Button type="primary" size="medium" onClick={handleOrder}>
-                    { loading ? 'Оформляем...' : 'Оформить заказ' }
+                    { isOrderLoading ? 'Оформляем...' : 'Оформить заказ' }
                 </Button>
             </div>
-            { 
+            {
                 order &&
                 (
                     <Modal onClose={handleCloseModal}>
-                        <OrderDetails number={order} />
+                        <OrderDetails number={order.number} />
                     </Modal>
                 )
             }
             {
-                isError &&
+                isOrderError &&
                 (
                     <Modal onClose={handleCloseModalError}>
                         <div className="p-4">

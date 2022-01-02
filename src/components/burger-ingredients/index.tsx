@@ -4,7 +4,9 @@ import BurgerIngredientsStyle from './index.module.css';
 import IngredientDetails from '../ingredient-details';
 import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
-import { SelectedIngredientsContext, IngredientsContext } from '../../contexts/appContext';
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../services/reducers";
+import {SET_SELECTED_INGREDIENTS, SET_CURRENT_INGREDIENT} from "../../services/actions";
 
 interface ITabs {
     title: string;
@@ -31,8 +33,12 @@ const tabList = [
 ];
 
 const BurgerIngredients = () => {
-    const { selectedIngredients, setSelectedIngredients }  = React.useContext(SelectedIngredientsContext);
-    const { ingredients }  = React.useContext(IngredientsContext);
+    const { ingredients, selectedIngredients, currentIngredient } = useSelector((state: RootState) => ({
+        ingredients: state.ingredients,
+        selectedIngredients: state.selectedIngredients,
+        currentIngredient: state.currentIngredient
+    }));
+    const dispatch = useDispatch();
     const [tabs, setTabs] = React.useState<Array<ITabs>>(tabList);
     const [currentScrollTop, setCurrentScrollTop] = React.useState(0);
 
@@ -62,10 +68,6 @@ const BurgerIngredients = () => {
     }, [])
 
     const [current, setCurrent] = React.useState('bun');
-    const [modalState, setModalState] = React.useState<{active: boolean, item: IIngredientItem | null}>({
-        active: false,
-        item: null
-    });
 
     React.useEffect(() => {
         const tab = tabs.find(item => {
@@ -85,19 +87,19 @@ const BurgerIngredients = () => {
     const handleClickItem = (item: IIngredientItem) => {
         const notBuns = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
         if (item.type === 'bun') {
-            return setSelectedIngredients([item, ...notBuns, item]);
+            return dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [item, ...notBuns, item] });
         }
         const bun = selectedIngredients.find((item: IIngredientItem) => item.type === 'bun');
-        return bun && setSelectedIngredients([bun, ...notBuns, item, bun]);
+        return bun && dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [bun, ...notBuns, item, bun] });
     }
 
     const handleClickImg = (e: React.MouseEvent, item: IIngredientItem) => {
         e.stopPropagation();
-        setModalState({ active: true, item });
+        dispatch({ type: SET_CURRENT_INGREDIENT, payload: item });
     }
 
     const handleCloseModal = () => {
-        setModalState({ active: false, item: null });
+        dispatch({ type: SET_CURRENT_INGREDIENT, payload: null });
     }
 
     // Не в состоянии пока понять какой тип скормить acc
@@ -137,7 +139,7 @@ const BurgerIngredients = () => {
                             </p>
                             <div className={`${BurgerIngredientsStyle.items} pr-4 pl-4 mb-8`}>
                             {
-                                ingredients[category.value].map((item: IIngredientItem) =>
+                                ingredients && ingredients[category.value].map((item: IIngredientItem) =>
                                     <div key={item._id} className={`${BurgerIngredientsStyle.item} mb-2`} onClick={() => handleClickItem(item)}>
                                         <div className="pl-4 pr-4">
                                             <picture>
@@ -161,10 +163,10 @@ const BurgerIngredients = () => {
                     )
                 }
             </div>
-            { modalState.active && modalState.item && 
+            { currentIngredient &&
                 (
                     <Modal header="Детали ингредиента" onClose={handleCloseModal}>
-                        <IngredientDetails {...modalState.item} />
+                        <IngredientDetails {...currentIngredient} />
                     </Modal>
                 )
             }
