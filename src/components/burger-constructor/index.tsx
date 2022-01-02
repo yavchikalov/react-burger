@@ -1,5 +1,5 @@
 import React from 'react';
-import { ConstructorElement, Button, CurrencyIcon, DragIcon } from '@ya.praktikum/react-developer-burger-ui-components';
+import { ConstructorElement, Button, CurrencyIcon } from '@ya.praktikum/react-developer-burger-ui-components';
 import BurgerConstructorStyle from './index.module.css';
 import OrderDetails from '../order-details';
 import IIngredientItem from '../../types/IngredientItem';
@@ -9,6 +9,7 @@ import {CREATE_ORDER, SET_ORDER, SET_SELECTED_INGREDIENTS, SET_ORDER_ERROR} from
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../services/reducers";
 import { useDrop } from "react-dnd";
+import BurgerConstructorItem from './item';
 
 function totalReducer(state: number, action: { type: string, payload: number }): number {
     switch (action.type) {
@@ -84,7 +85,7 @@ const BurgerConstructor = () => {
         <div>
             <div ref={dropTarget} className={`${BurgerConstructorStyle.content} ${isHover ? BurgerConstructorStyle.contentHover : ''}`}>
                 {
-                    bunTop && (<div className={`${BurgerConstructorStyle.item} mr-2`}>
+                    bunTop && (<div className="mr-2">
                         <ConstructorElement
                             type="top"
                             isLocked={true}
@@ -98,23 +99,21 @@ const BurgerConstructor = () => {
                     !!other.length && <div className={BurgerConstructorStyle.main}>
                         {
                             other.map((item: IIngredientItem, index: number) => (
-                                <div key={`${index}_${item._id}`} className={`${BurgerConstructorStyle.item} mr-2`}>
-                                    <div className={`${BurgerConstructorStyle.drag} mr-4`}>
-                                        <DragIcon type="primary" />
-                                    </div>
-                                    <ConstructorElement
-                                        text={item.name}
-                                        price={item.price}
-                                        thumbnail={item.image}
-                                        handleClose={() => handleRemove(index)}
-                                    />
-                                </div>
+                                <BurgerConstructorItem
+                                    item={item}
+                                    index={index}
+                                    key={index}
+                                    text={item.name}
+                                    price={item.price}
+                                    thumbnail={item.image}
+                                    handleClose={() => handleRemove(index)}
+                                />
                             ))
                         }
                     </div>
                 }
                 {
-                    bunBottom && <div className={`${BurgerConstructorStyle.item} mr-2`}>
+                    bunBottom && <div className="mr-2">
                         <ConstructorElement
                             type="bottom"
                             isLocked={true}

@@ -1,12 +1,12 @@
 import React from 'react';
-import { Tab, CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-components';
+import { Tab } from '@ya.praktikum/react-developer-burger-ui-components';
 import BurgerIngredientsStyle from './index.module.css';
 import IngredientDetails from '../ingredient-details';
 import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../services/reducers";
-import {SET_SELECTED_INGREDIENTS, SET_CURRENT_INGREDIENT} from "../../services/actions";
+import {SET_CURRENT_INGREDIENT} from "../../services/actions";
 import BurgerIngredient from "../burger-ingredient";
 
 interface ITabs {
@@ -34,9 +34,8 @@ const tabList = [
 ];
 
 const BurgerIngredients = () => {
-    const { ingredients, selectedIngredients, currentIngredient } = useSelector((state: RootState) => ({
+    const { ingredients, currentIngredient } = useSelector((state: RootState) => ({
         ingredients: state.ingredients,
-        selectedIngredients: state.selectedIngredients,
         currentIngredient: state.currentIngredient
     }));
     const dispatch = useDispatch();

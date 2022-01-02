@@ -31,13 +31,6 @@
     height: 50%;
 }
 
-.item {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    user-select: none;
-}
-
 .bottom {
     display: flex;
     justify-content: flex-end;
@@ -53,10 +46,6 @@
 .icon svg {
     width: 33px;
     height: 33px;
-}
-
-.drag {
-    cursor: pointer;
 }
 
 @media screen and (max-width: 450px) {
