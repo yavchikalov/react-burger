@@ -8,6 +8,7 @@ import ErrorMessage from '../error-message';
 import {CREATE_ORDER, SET_ORDER, SET_SELECTED_INGREDIENTS, SET_ORDER_ERROR} from "../../services/actions";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../services/reducers";
+import { useDrop } from "react-dnd";
 
 function totalReducer(state: number, action: { type: string, payload: number }): number {
     switch (action.type) {
@@ -63,49 +64,67 @@ const BurgerConstructor = () => {
         dispatch({ type: SET_ORDER, payload: null });
     }
 
+    const [{isHover}, dropTarget] = useDrop({
+        accept: "ingredient",
+        drop(item: IIngredientItem) {
+            const bun = selectedIngredients.find((ingredient: IIngredientItem) => ingredient.type === 'bun');
+            const ingredientsWithoutBuns = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
+            if (item.type === 'bun' && item._id !== bun._id) {
+                dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [item, ...ingredientsWithoutBuns, item] });
+            } else if (item.type !== 'bun') {
+                dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [bun, ...ingredientsWithoutBuns, item, bun] });
+            }
+        },
+        collect: monitor => ({
+            isHover: monitor.isOver(),
+        })
+    });
+
     return (
-        <div className={BurgerConstructorStyle.root}>
-            {
-                bunTop && (<div className={`${BurgerConstructorStyle.item} mr-2`}>
-                    <ConstructorElement
-                        type="top"
-                        isLocked={true}
-                        text={`${bunTop.name} (Верх)`}
-                        price={bunTop.price}
-                        thumbnail={bunTop.image}
-                    />
-                </div>)
-            }
-            {
-                !!other.length && <div className={BurgerConstructorStyle.main}>
-                    {
-                        other.map((item: IIngredientItem, index: number) => (
-                            <div key={`${index}_${item._id}`} className={`${BurgerConstructorStyle.item} mr-2`}>
-                                <div className={`${BurgerConstructorStyle.drag} mr-4`}>
-                                    <DragIcon type="primary" />
+        <div>
+            <div ref={dropTarget} className={`${BurgerConstructorStyle.content} ${isHover ? BurgerConstructorStyle.contentHover : ''}`}>
+                {
+                    bunTop && (<div className={`${BurgerConstructorStyle.item} mr-2`}>
+                        <ConstructorElement
+                            type="top"
+                            isLocked={true}
+                            text={`${bunTop.name} (Верх)`}
+                            price={bunTop.price}
+                            thumbnail={bunTop.image}
+                        />
+                    </div>)
+                }
+                {
+                    !!other.length && <div className={BurgerConstructorStyle.main}>
+                        {
+                            other.map((item: IIngredientItem, index: number) => (
+                                <div key={`${index}_${item._id}`} className={`${BurgerConstructorStyle.item} mr-2`}>
+                                    <div className={`${BurgerConstructorStyle.drag} mr-4`}>
+                                        <DragIcon type="primary" />
+                                    </div>
+                                    <ConstructorElement
+                                        text={item.name}
+                                        price={item.price}
+                                        thumbnail={item.image}
+                                        handleClose={() => handleRemove(index)}
+                                    />
                                 </div>
-                                <ConstructorElement
-                                    text={item.name}
-                                    price={item.price}
-                                    thumbnail={item.image}
-                                    handleClose={() => handleRemove(index)}
-                                />
-                            </div>
-                        ))
-                    }
-                </div>
-            }
-            {
-                bunBottom && <div className={`${BurgerConstructorStyle.item} mr-2`}>
-                    <ConstructorElement
-                        type="bottom"
-                        isLocked={true}
-                        text={`${bunBottom.name} (низ)`}
-                        price={bunBottom.price}
-                        thumbnail={bunBottom.image}
-                    />
-                </div>
-            }
+                            ))
+                        }
+                    </div>
+                }
+                {
+                    bunBottom && <div className={`${BurgerConstructorStyle.item} mr-2`}>
+                        <ConstructorElement
+                            type="bottom"
+                            isLocked={true}
+                            text={`${bunBottom.name} (низ)`}
+                            price={bunBottom.price}
+                            thumbnail={bunBottom.image}
+                        />
+                    </div>
+                }
+            </div>
             <div className={`${BurgerConstructorStyle.bottom} mt-10`}>
                 <div className={`${BurgerConstructorStyle.sum} mr-10`}>
                     <div className={`${BurgerConstructorStyle.value} text text_type_digits-medium mr-2`}>

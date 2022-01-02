@@ -7,6 +7,7 @@ import Modal from '../modal';
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../services/reducers";
 import {SET_SELECTED_INGREDIENTS, SET_CURRENT_INGREDIENT} from "../../services/actions";
+import BurgerIngredient from "../burger-ingredient";
 
 interface ITabs {
     title: string;
@@ -84,39 +85,8 @@ const BurgerIngredients = () => {
         el && el.scrollIntoView({ block: 'start', behavior: 'smooth' });
     }
 
-    const handleClickItem = (item: IIngredientItem) => {
-        const notBuns = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
-        if (item.type === 'bun') {
-            return dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [item, ...notBuns, item] });
-        }
-        const bun = selectedIngredients.find((item: IIngredientItem) => item.type === 'bun');
-        return bun && dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [bun, ...notBuns, item, bun] });
-    }
-
-    const handleClickImg = (e: React.MouseEvent, item: IIngredientItem) => {
-        e.stopPropagation();
-        dispatch({ type: SET_CURRENT_INGREDIENT, payload: item });
-    }
-
     const handleCloseModal = () => {
         dispatch({ type: SET_CURRENT_INGREDIENT, payload: null });
-    }
-
-    // Не в состоянии пока понять какой тип скормить acc
-    const counterList = selectedIngredients.reduce((acc: any, item: IIngredientItem) => {
-        if (!acc[item._id]) acc[item._id] = 0;
-        acc[item._id]++;
-        return acc;
-    }, {});
-
-
-    const getCounter = (item: IIngredientItem) => {
-        if (item.type === 'bun' && counterList[item._id]) {
-            return (<Counter count={1} size="default" />)
-        } else if (counterList[item._id]) {
-            return (<Counter count={counterList[item._id]} size="default" />)
-        }
-        return null;
     }
 
     return (
@@ -140,22 +110,10 @@ const BurgerIngredients = () => {
                             <div className={`${BurgerIngredientsStyle.items} pr-4 pl-4 mb-8`}>
                             {
                                 ingredients && ingredients[category.value].map((item: IIngredientItem) =>
-                                    <div key={item._id} className={`${BurgerIngredientsStyle.item} mb-2`} onClick={() => handleClickItem(item)}>
-                                        <div className="pl-4 pr-4">
-                                            <picture>
-                                                <source media="(max-width: 480px)" srcSet={item.image_mobile} />
-                                                <img src={item.image} alt={item.name} onClick={(e) => handleClickImg(e, item)} />
-                                            </picture>
-                                        </div>
-                                        <div className={`${BurgerIngredientsStyle.price} mt-1 mb-1`}>
-                                            <p className="text text_type_digits-default mr-2">{item.price}</p>
-                                            <CurrencyIcon type="primary" />
-                                        </div>
-                                        <p className="text text_type_main-default">{item.name}</p>
-                                        <div className={BurgerIngredientsStyle.counter}>
-                                            { getCounter(item) }
-                                        </div>
-                                    </div>
+                                    <BurgerIngredient
+                                        key={item._id}
+                                        item={item}
+                                    />
                                 )
                             }
                             </div>
