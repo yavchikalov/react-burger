@@ -7,7 +7,7 @@ import Modal from '../modal';
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../services/reducers";
 import {SET_CURRENT_INGREDIENT} from "../../services/actions";
-import BurgerIngredient from "../burger-ingredient";
+import BurgerIngredientsItem from "./item";
 
 interface ITabs {
     title: string;
@@ -109,7 +109,7 @@ const BurgerIngredients = () => {
                             <div className={`${BurgerIngredientsStyle.items} pr-4 pl-4 mb-8`}>
                             {
                                 ingredients && ingredients[category.value].map((item: IIngredientItem) =>
-                                    <BurgerIngredient
+                                    <BurgerIngredientsItem
                                         key={item._id}
                                         item={item}
                                     />

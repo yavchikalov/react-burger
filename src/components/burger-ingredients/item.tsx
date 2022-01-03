@@ -1,4 +1,4 @@
-import BurgerIngredientStyle from "./index.module.css";
+import BurgerIngredientsItemStyle from "./item.module.css";
 import {Counter, CurrencyIcon} from "@ya.praktikum/react-developer-burger-ui-components";
 import React from "react";
 import IIngredientItem from "../../types/IngredientItem";
@@ -48,19 +48,19 @@ const BurgerIngredient = (props: { item: IIngredientItem }) => {
     });
 
     return (
-        <div ref={dragRef} className={`${BurgerIngredientStyle.item} mb-2`} onClick={handleClickItem} draggable>
+        <div ref={dragRef} className={`${BurgerIngredientsItemStyle.item} mb-2`} onClick={handleClickItem} draggable>
             <div className="pl-4 pr-4">
                 <picture>
                     <source media="(max-width: 480px)" srcSet={props.item.image_mobile} />
                     <img ref={dragPreviewRef} src={props.item.image} alt={props.item.name} onClick={handleClickImg} />
                 </picture>
             </div>
-            <div className={`${BurgerIngredientStyle.price} mt-1 mb-1`}>
+            <div className={`${BurgerIngredientsItemStyle.price} mt-1 mb-1`}>
                 <p className="text text_type_digits-default mr-2">{props.item.price}</p>
                 <CurrencyIcon type="primary" />
             </div>
             <p className="text text_type_main-default">{props.item.name}</p>
-            <div className={BurgerIngredientStyle.counter}>
+            <div className={BurgerIngredientsItemStyle.counter}>
                 { getCounter() }
             </div>
         </div>
