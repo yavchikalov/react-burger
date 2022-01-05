@@ -5,7 +5,7 @@ import OrderDetails from '../order-details';
 import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
 import ErrorMessage from '../error-message';
-import {CREATE_ORDER, SET_ORDER, SET_SELECTED_INGREDIENTS, SET_ORDER_ERROR} from "../../services/actions";
+import {CREATE_ORDER, SET_ORDER, setSelectedIngredients, SET_ORDER_ERROR} from "../../services/actions";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../services/reducers";
 import { useDrop } from "react-dnd";
@@ -47,7 +47,7 @@ const BurgerConstructor = () => {
     const handleRemove = (index: number) => {
         const items = [...other];
         items.splice(index, 1);
-        bunTop && bunBottom && dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [bunTop, ...items, bunBottom] });
+        bunTop && bunBottom && dispatch(setSelectedIngredients([bunTop, ...items, bunBottom]));
     }
 
     const handleOrder = () => {
@@ -70,10 +70,13 @@ const BurgerConstructor = () => {
         drop(item: IIngredientItem) {
             const bun = selectedIngredients.find((ingredient: IIngredientItem) => ingredient.type === 'bun');
             const ingredientsWithoutBuns = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
-            if (item.type === 'bun' && item._id !== bun._id) {
-                dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [item, ...ingredientsWithoutBuns, item] });
+            if (item.type === 'bun' && (!bun || item._id !== bun._id)) {
+                return dispatch(setSelectedIngredients([item, ...ingredientsWithoutBuns, item]));
             } else if (item.type !== 'bun') {
-                dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [bun, ...ingredientsWithoutBuns, item, bun] });
+                if (bun) {
+                    return dispatch(setSelectedIngredients([bun, ...ingredientsWithoutBuns, item, bun]));
+                }
+                return dispatch(setSelectedIngredients([...ingredientsWithoutBuns, item]));
             }
         },
         collect: monitor => ({
@@ -81,47 +84,62 @@ const BurgerConstructor = () => {
         })
     });
 
+    const bunTopContent = (
+        bunTop && <div className={`${BurgerConstructorStyle.bun} mr-2`}>
+            <ConstructorElement
+                type="top"
+                isLocked={true}
+                text={`${bunTop.name} (Верх)`}
+                price={bunTop.price}
+                thumbnail={bunTop.image}
+            />
+        </div>
+    );
+
+    const otherContent = (
+        !!other.length && <div className={BurgerConstructorStyle.main}>
+            {
+                other.map((item: IIngredientItem, index: number) => (
+                    // Если key уникальный, то DND выдает ошибку: Expected to find a valid target. targetId=T24
+                    <BurgerConstructorItem
+                        item={item}
+                        index={index}
+                        key={index}
+                        text={item.name}
+                        price={item.price}
+                        thumbnail={item.image}
+                        handleClose={() => handleRemove(index)}
+                    />
+                ))
+            }
+        </div>
+    );
+
+    const bunBottomContent = (
+        bunBottom && <div className={`${BurgerConstructorStyle.bun} mr-2`}>
+            <ConstructorElement
+                type="bottom"
+                isLocked={true}
+                text={`${bunBottom.name} (низ)`}
+                price={bunBottom.price}
+                thumbnail={bunBottom.image}
+            />
+        </div>
+    );
+
     return (
         <div>
             <div ref={dropTarget} className={`${BurgerConstructorStyle.content} ${isHover ? BurgerConstructorStyle.contentHover : ''}`}>
                 {
-                    bunTop && (<div className="mr-2">
-                        <ConstructorElement
-                            type="top"
-                            isLocked={true}
-                            text={`${bunTop.name} (Верх)`}
-                            price={bunTop.price}
-                            thumbnail={bunTop.image}
-                        />
-                    </div>)
-                }
-                {
-                    !!other.length && <div className={BurgerConstructorStyle.main}>
-                        {
-                            other.map((item: IIngredientItem, index: number) => (
-                                <BurgerConstructorItem
-                                    item={item}
-                                    index={index}
-                                    key={index}
-                                    text={item.name}
-                                    price={item.price}
-                                    thumbnail={item.image}
-                                    handleClose={() => handleRemove(index)}
-                                />
-                            ))
-                        }
-                    </div>
-                }
-                {
-                    bunBottom && <div className="mr-2">
-                        <ConstructorElement
-                            type="bottom"
-                            isLocked={true}
-                            text={`${bunBottom.name} (низ)`}
-                            price={bunBottom.price}
-                            thumbnail={bunBottom.image}
-                        />
-                    </div>
+                    selectedIngredients.length ? (
+                        <>
+                            {bunTopContent}
+                            {otherContent}
+                            {bunBottomContent}
+                        </>
+                    ) : (
+                        <div className="text text_type_main-default p-4">Пожалуйста, перенесите сюда булку и ингредиенты для создания заказа</div>
+                    )
                 }
             </div>
             <div className={`${BurgerConstructorStyle.bottom} mt-10`}>
@@ -133,7 +151,12 @@ const BurgerConstructor = () => {
                         <CurrencyIcon type="primary" />
                     </div>
                 </div>
-                <Button type="primary" size="medium" onClick={handleOrder}>
+                <Button
+                    type="primary"
+                    size="medium"
+                    disabled={!bunTop && !bunBottom}
+                    onClick={handleOrder}
+                >
                     { isOrderLoading ? 'Оформляем...' : 'Оформить заказ' }
                 </Button>
             </div>

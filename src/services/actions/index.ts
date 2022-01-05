@@ -22,7 +22,7 @@ export const GET_INGREDIENTS = () => {
                         return acc;
                     }, {});
                     dispatch({ type: SET_INGREDIENTS, payload: ingredients });
-                    dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [ingredients.bun[0], ingredients.sauce[0], ingredients.main[0], ingredients.bun[0]] });
+                    // dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [ingredients.bun[0], ingredients.sauce[0], ingredients.main[0], ingredients.bun[0]] });
                 }
             })
             .catch(() => {
@@ -32,7 +32,7 @@ export const GET_INGREDIENTS = () => {
 };
 export const CREATE_ORDER = (ingredients: string) => {
     return (dispatch: (arg: { type: string; payload: any; }) => void) => {
-        dispatch({ type: 'SET_ORDER_LOADING', payload: true });
+        dispatch({ type: SET_ORDER_LOADING, payload: true });
         fetch(API_ORDERS, {
             method: 'POST',
             headers: {
@@ -42,13 +42,23 @@ export const CREATE_ORDER = (ingredients: string) => {
         })
             .then(checkResponse)
             .then(({ order }) => {
-                if (order) dispatch({ type: 'SET_ORDER', payload: order });
+                if (order) {
+                    dispatch({ type: SET_ORDER, payload: order });
+                    dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [] });
+                }
             })
             .catch(() => {
-                dispatch({ type: 'SET_ORDER_ERROR', payload: true });
+                dispatch({ type: SET_ORDER_ERROR, payload: true });
             })
             .finally(() => {
-                dispatch({ type: 'SET_ORDER_LOADING', payload: false });
+                dispatch({ type: SET_ORDER_LOADING, payload: false });
             });
     }
+}
+
+export const setSelectedIngredients = (payload: IIngredientItem[]) => {
+    return {
+        type: SET_SELECTED_INGREDIENTS,
+        payload
+    };
 }

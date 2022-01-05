@@ -48,6 +48,10 @@
     height: 33px;
 }
 
+.bun {
+    margin-left: 44px;
+}
+
 @media screen and (max-width: 450px) {
     .bottom {
         flex-direction: column;

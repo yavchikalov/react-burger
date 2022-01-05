@@ -2,7 +2,7 @@ import BurgerIngredientsItemStyle from "./item.module.css";
 import {Counter, CurrencyIcon} from "@ya.praktikum/react-developer-burger-ui-components";
 import React from "react";
 import IIngredientItem from "../../types/IngredientItem";
-import {SET_CURRENT_INGREDIENT, SET_SELECTED_INGREDIENTS} from "../../services/actions";
+import {SET_CURRENT_INGREDIENT, setSelectedIngredients} from "../../services/actions";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../services/reducers";
 import { useDrag } from "react-dnd";
@@ -14,10 +14,13 @@ const BurgerIngredient = (props: { item: IIngredientItem }) => {
     const handleClickItem = () => {
         const notBuns = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
         if (props.item.type === 'bun') {
-            return dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [props.item, ...notBuns, props.item] });
+            return dispatch(setSelectedIngredients([props.item, ...notBuns, props.item]));
         }
         const bun = selectedIngredients.find((item: IIngredientItem) => item.type === 'bun');
-        return bun && dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [bun, ...notBuns, props.item, bun] });
+        if (bun) {
+            return bun && dispatch(setSelectedIngredients([bun, ...notBuns, props.item, bun]));
+        }
+        return dispatch(setSelectedIngredients([...notBuns, props.item]));
     }
     const handleClickImg = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -31,10 +34,8 @@ const BurgerIngredient = (props: { item: IIngredientItem }) => {
     }, {});
 
     const getCounter = () => {
-        if (props.item.type === 'bun' && counterList[props.item._id]) {
-            return (<Counter count={1} size="default" />)
-        } else if (counterList[props.item._id]) {
-            return (<Counter count={counterList[props.item._id]} size="default" />)
+        if (counterList[props.item._id]) {
+            return (<Counter count={counterList[props.item._id]} size="default" />);
         }
         return null;
     }

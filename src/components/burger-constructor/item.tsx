@@ -6,7 +6,7 @@ import IIngredientItem from "../../types/IngredientItem";
 import { XYCoord } from 'dnd-core';
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../services/reducers";
-import {SET_SELECTED_INGREDIENTS} from "../../services/actions";
+import {setSelectedIngredients} from "../../services/actions";
 
 interface IItem {
     item: IIngredientItem;
@@ -32,7 +32,10 @@ const BurgerConstructorItem = (props: IItem) => {
         items.splice(dragIndex, 1);
         items.splice(hoverIndex, 0, dragItem);
 
-        dispatch({ type: SET_SELECTED_INGREDIENTS, payload: [bun, ...items, bun] });
+        if (bun) {
+            return dispatch(setSelectedIngredients([bun, ...items, bun]));
+        }
+        return dispatch(setSelectedIngredients(items));
     }, [selectedIngredients, dispatch])
 
     const [{handlerId}, drop] = useDrop({
