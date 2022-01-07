@@ -100,11 +100,10 @@ const BurgerConstructor = () => {
         !!other.length && <div className={BurgerConstructorStyle.main}>
             {
                 other.map((item: IIngredientItem, index: number) => (
-                    // Если key уникальный, то DND выдает ошибку: Expected to find a valid target. targetId=T24
                     <BurgerConstructorItem
                         item={item}
                         index={index}
-                        key={index}
+                        key={item.uuid}
                         text={item.name}
                         price={item.price}
                         thumbnail={item.image}

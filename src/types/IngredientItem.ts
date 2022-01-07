@@ -10,4 +10,5 @@ export default interface IIngredientItem {
     name: string;
     price: number;
     type: string;
+    uuid: string
 }

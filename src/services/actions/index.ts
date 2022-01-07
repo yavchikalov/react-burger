@@ -1,6 +1,7 @@
 import {API_INGREDIENTS, API_ORDERS} from "../../const/api";
 import {checkResponse} from "../../utils/helper";
 import IIngredientItem from "../../types/IngredientItem";
+import { v4 as uuidv4 } from 'uuid';
 
 export const SET_INGREDIENTS = 'SET_INGREDIENTS';
 export const SET_SELECTED_INGREDIENTS = 'SET_SELECTED_INGREDIENTS';
@@ -59,6 +60,11 @@ export const CREATE_ORDER = (ingredients: string) => {
 export const setSelectedIngredients = (payload: IIngredientItem[]) => {
     return {
         type: SET_SELECTED_INGREDIENTS,
-        payload
+        payload: payload.map((item: IIngredientItem) => ({
+            ...item,
+            uuid: (() => {
+               return item.uuid ? item.uuid : uuidv4();
+            })()
+        }))
     };
 }
