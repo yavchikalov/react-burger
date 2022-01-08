@@ -1,0 +1,22 @@
+.root {
+    display: flex;
+    align-items: center;
+    margin-top: 180px;
+    flex-direction: column;
+}
+
+.form {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 80px;
+}
+
+.text {
+    color: var(--text-inactive-color);
+}
+
+.link {
+    color: var(--colors-interface-accent);
+    text-decoration: none;
+}

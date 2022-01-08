@@ -1,0 +1,18 @@
+.root {
+    margin-top: 120px;
+    display: flex;
+}
+
+.description {
+    color: var(--text-inactive-color);
+}
+
+.navigation {
+    flex-basis: 320px;
+    flex-shrink: 0;
+}
+
+.tabTitle {
+    text-align: left;
+    margin: 0 -40px;
+}

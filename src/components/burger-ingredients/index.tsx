@@ -1,10 +1,13 @@
 import React from 'react';
-import { Tab, CurrencyIcon, Counter } from '@ya.praktikum/react-developer-burger-ui-components';
+import { Tab } from '@ya.praktikum/react-developer-burger-ui-components';
 import BurgerIngredientsStyle from './index.module.css';
 import IngredientDetails from '../ingredient-details';
 import IIngredientItem from '../../types/IngredientItem';
 import Modal from '../modal';
-import { SelectedIngredientsContext, IngredientsContext } from '../../contexts/appContext';
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../services/reducers";
+import {SET_CURRENT_INGREDIENT} from "../../services/actions";
+import BurgerIngredientsItem from "./item";
 
 interface ITabs {
     title: string;
@@ -31,8 +34,11 @@ const tabList = [
 ];
 
 const BurgerIngredients = () => {
-    const { selectedIngredients, setSelectedIngredients }  = React.useContext(SelectedIngredientsContext);
-    const { ingredients }  = React.useContext(IngredientsContext);
+    const { ingredients, currentIngredient } = useSelector((state: RootState) => ({
+        ingredients: state.ingredients,
+        currentIngredient: state.currentIngredient
+    }));
+    const dispatch = useDispatch();
     const [tabs, setTabs] = React.useState<Array<ITabs>>(tabList);
     const [currentScrollTop, setCurrentScrollTop] = React.useState(0);
 
@@ -62,10 +68,6 @@ const BurgerIngredients = () => {
     }, [])
 
     const [current, setCurrent] = React.useState('bun');
-    const [modalState, setModalState] = React.useState<{active: boolean, item: IIngredientItem | null}>({
-        active: false,
-        item: null
-    });
 
     React.useEffect(() => {
         const tab = tabs.find(item => {
@@ -82,39 +84,8 @@ const BurgerIngredients = () => {
         el && el.scrollIntoView({ block: 'start', behavior: 'smooth' });
     }
 
-    const handleClickItem = (item: IIngredientItem) => {
-        const notBuns = selectedIngredients.filter((item: IIngredientItem) => item.type !== 'bun');
-        if (item.type === 'bun') {
-            return setSelectedIngredients([item, ...notBuns, item]);
-        }
-        const bun = selectedIngredients.find((item: IIngredientItem) => item.type === 'bun');
-        return bun && setSelectedIngredients([bun, ...notBuns, item, bun]);
-    }
-
-    const handleClickImg = (e: React.MouseEvent, item: IIngredientItem) => {
-        e.stopPropagation();
-        setModalState({ active: true, item });
-    }
-
     const handleCloseModal = () => {
-        setModalState({ active: false, item: null });
-    }
-
-    // Не в состоянии пока понять какой тип скормить acc
-    const counterList = selectedIngredients.reduce((acc: any, item: IIngredientItem) => {
-        if (!acc[item._id]) acc[item._id] = 0;
-        acc[item._id]++;
-        return acc;
-    }, {});
-
-
-    const getCounter = (item: IIngredientItem) => {
-        if (item.type === 'bun' && counterList[item._id]) {
-            return (<Counter count={1} size="default" />)
-        } else if (counterList[item._id]) {
-            return (<Counter count={counterList[item._id]} size="default" />)
-        }
-        return null;
+        dispatch({ type: SET_CURRENT_INGREDIENT, payload: null });
     }
 
     return (
@@ -137,23 +108,11 @@ const BurgerIngredients = () => {
                             </p>
                             <div className={`${BurgerIngredientsStyle.items} pr-4 pl-4 mb-8`}>
                             {
-                                ingredients[category.value].map((item: IIngredientItem) =>
-                                    <div key={item._id} className={`${BurgerIngredientsStyle.item} mb-2`} onClick={() => handleClickItem(item)}>
-                                        <div className="pl-4 pr-4">
-                                            <picture>
-                                                <source media="(max-width: 480px)" srcSet={item.image_mobile} />
-                                                <img src={item.image} alt={item.name} onClick={(e) => handleClickImg(e, item)} />
-                                            </picture>
-                                        </div>
-                                        <div className={`${BurgerIngredientsStyle.price} mt-1 mb-1`}>
-                                            <p className="text text_type_digits-default mr-2">{item.price}</p>
-                                            <CurrencyIcon type="primary" />
-                                        </div>
-                                        <p className="text text_type_main-default">{item.name}</p>
-                                        <div className={BurgerIngredientsStyle.counter}>
-                                            { getCounter(item) }
-                                        </div>
-                                    </div>
+                                ingredients && ingredients[category.value].map((item: IIngredientItem) =>
+                                    <BurgerIngredientsItem
+                                        key={item._id}
+                                        item={item}
+                                    />
                                 )
                             }
                             </div>
@@ -161,10 +120,10 @@ const BurgerIngredients = () => {
                     )
                 }
             </div>
-            { modalState.active && modalState.item && 
+            { currentIngredient &&
                 (
                     <Modal header="Детали ингредиента" onClose={handleCloseModal}>
-                        <IngredientDetails {...modalState.item} />
+                        <IngredientDetails {...currentIngredient} />
                     </Modal>
                 )
             }
